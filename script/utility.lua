@@ -19,19 +19,27 @@ end
 function Auxiliary.FALSE()
 	return false
 end
-function Auxiliary.AND(f1,f2)
-	return	function(a,b,c)
-				return f1(a,b,c) and f2(a,b,c)
+function Auxiliary.AND(...)
+  local args=table.pack(...)
+	return	function(...)
+        for n=1,args.n do
+          if not args[n](...) then return false end
+        end
+        return true
 			end
 end
-function Auxiliary.OR(f1,f2)
-	return	function(a,b,c)
-				return f1(a,b,c) or f2(a,b,c)
+function Auxiliary.OR(...)
+  local args=table.pack(...)
+	return	function(...)
+        for n=1,args.n do
+          if args[n](...) then return true end
+        end
+        return false
 			end
 end
 function Auxiliary.NOT(f)
-	return	function(a,b,c)
-				return not f(a,b,c)
+	return	function(...)
+				return not f(...)
 			end
 end
 function Auxiliary.IsDualState(effect)
@@ -87,31 +95,37 @@ function Auxiliary.EnableDualAttribute(c)
 	e3:SetValue(TYPE_EFFECT)
 	c:RegisterEffect(e3)
 end
-function Auxiliary.TargetEqualFunction(f,value,a,b,c)
+function Auxiliary.TargetEqualFunction(f,value,...)
+  local args=table.pack(...)
 	return	function(effect,target)
-				return f(target,a,b,c)==value
+				return f(target,table.unpack(args))==value
 			end
 end
-function Auxiliary.TargetBoolFunction(f,a,b,c)
+function Auxiliary.TargetBoolFunction(f,...)
+  local args=table.pack(...)
 	return	function(effect,target)
-				return f(target,a,b,c)
+				return f(target,table.unpack(args))
 			end
 end
-function Auxiliary.FilterEqualFunction(f,value,a,b,c)
+function Auxiliary.FilterEqualFunction(f,value,...)
+  local args=table.pack(...)
 	return	function(target)
-				return f(target,a,b,c)==value
+				return f(target,table.unpack(args))==value
 			end
 end
-function Auxiliary.FilterBoolFunction(f,a,b,c)
+function Auxiliary.FilterBoolFunction(f,...)
+  local args=table.pack(...)
 	return	function(target)
-				return f(target,a,b,c)
+				return f(target,table.unpack(args))
 			end
 end
-function Auxiliary.NonTuner(f,a,b,c)
+function Auxiliary.NonTuner(f,...)
+  local args=table.pack(...)
 	return	function(target)
-				return target:IsNotTuner() and (not f or f(target,a,b,c))
+				return target:IsNotTuner() and (not f or f(target,table.unpack(args)))
 			end
 end
+
 --Synchro monster, 1 tuner + n or more monsters
 function Auxiliary.AddSynchroProcedure(c,f1,f2,ct)
 	local e1=Effect.CreateEffect(c)
